@@ -253,7 +253,7 @@ Usage:
   ./bittrex-orders.pl -m BTC-USD -d 1a84083a-8e6e-4d60-b172-8ed1a92ecf4a
 
 ```
-All trading information stores in *.json files. So you can also remove <market>.json file for total cleanup.
+All trading information stores in *.json files. So you can also remove &#60;market&#62;.json file for total cleanup.
 3. Start bot again.
 
 # Changelog
