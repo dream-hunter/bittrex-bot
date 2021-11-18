@@ -258,7 +258,7 @@ All trading information stores in *.json files. So you can also remove &#60;mark
 
 # How it works
 
-1. Bot reads **tickers** data from bittrex (GET /markets/tickers). After parsing it checks for changes in configured markets.
+1. Bot reads tickers data from bittrex (GET /markets/tickers). After parsing it checks for changes in configured markets.
 If there is a change in a market, it gather information for analysis.
 2. Bot check it's orderbook. If there is orders, that can be sold, it check for sell conditions. If result allows sell - bot perform a sell. If nothing to sell - it continues to the next step.
 3. Check for buy. Bot analyse gathered market info:
