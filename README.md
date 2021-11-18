@@ -10,6 +10,15 @@ If you wanna help my project, send your donations to the following wallets:
 BTC: 17kZJHjouZqLmMwntg2M6zzdEW3Jivx79o
 ETH: 0xda1be63336b49e25201d2f406f01b1989f6146c1
 ```
+# Warnings
+
+1. Restict access to server! Never use bot on servers with third party access! API key/secrets is unencrypted in config file.
+2. Avoid to allow access even for configuration helpers.
+3. Don't share any information about your trading server to avoid targeted network attacks.
+4. Use SSHGuard and Firewalls to protect your server.
+5. Don't store API keys/secrets on your home computer. Sometime generate new and delete/block old API keys.
+
+Your security - your money!
 
 # System prerequisites
 
@@ -166,3 +175,47 @@ Note: *every market have 'symbol', 'baseCurrencySymbol' and 'quoteCurrencySymbol
    *default value -* 0.03
  - **stoploss** - Decreasing market price, after that order will be sold.  
    *default value -* 0.75
+
+# Bot launch
+
+After installing and configuration you can start it. First launch script to make sure that everything is fine (Ctrl+C to break):
+
+```
+/usr/bin/perl bittrex-bot.pl
+```
+
+If program runs normaly, you can run it in background mode via screen. There is shell script to maintain this process:
+
+```
+/bin/bash tasked-bot-bg.sh
+```
+
+This script starts bittrex-bot.pl in background. To chek if it works:
+
+```
+# ps -axj | grep bittrex-bot.pl
+15088 16955 16954 15088 pts/1    16954 S+       0   0:00 grep bittrex-bot.pl
+***    1 32202 32202 32202 ?           -1 Ss       0   0:04 SCREEN -L -S btcbot -d -m ./bittrex-bot.pl***
+32202 32203 32203 32203 pts/2    32203 Ss+      0 467:13 /usr/bin/perl ./bittrex-bot.pl
+```
+
+Make sure that you started only one process. Else you have to kill it and start properly.
+You can also recover background process:
+
+```
+/bin/bash tasked-bot-bg-recover.sh
+```
+
+If everything is fine and you need to pull it back - press Ctrl+A and Ctrl+D.
+If you wanna stop process - press Ctrl+C
+
+# Logging
+
+If you properly done logging configuration, your logs should be placed in /var/log/screenlog. After start program in background you can check logs:
+```
+cat /var/log/screenlog
+```
+
+# Changelog
+
+ **2020-11-18** - Project shared to public access.
