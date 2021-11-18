@@ -228,7 +228,7 @@ However if you crossed line or you decided to buy some extra orders (and apply i
 1. Stop the bot running;
 2. Use the bittrex-orders.pl to delete/add orders from/to database:
 ```
-./bittrex-orders.pl
+/usr/bin/perl bittrex-orders.pl
 
 Usage:
 
@@ -273,6 +273,13 @@ If there is a change in a market, it gather information for analysis.
 
 Bot not going buy everything. It can wait quite long time before buy something. Same with sales. Setting **nextsellorder** option not means selling for exactly this price.
 If price grows up, bot will wait until it stops so basically bot proably will sell order for better price, but never cheaper than you configured (except stoploss occasion).
+
+# Updates
+
+For simple update use git-update.sh:
+```
+/bin/bash git-update.sh
+```
 
 # Changelog
 
