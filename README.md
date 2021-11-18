@@ -20,6 +20,11 @@ ETH: 0xda1be63336b49e25201d2f406f01b1989f6146c1
 
 Your security - your money!
 
+# Advices
+
+Do not use the bot for trading on more than 5 markets. This is about Bittrex Web API restictions - getting market information will be too slow for proper react.
+It is possible to increase performance by writing a new bot that will use socket API. Current version is enough for me and nobody pays me for development.
+
 # System prerequisites
 
  1. Installed linux OS (ubuntu/centos etc)
