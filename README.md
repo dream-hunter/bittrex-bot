@@ -280,6 +280,7 @@ For simple update use git-update.sh:
 ```
 /bin/bash git-update.sh
 ```
+All files, except for configs and databases, will be overwritten.
 
 # Changelog
 
