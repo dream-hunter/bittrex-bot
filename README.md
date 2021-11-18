@@ -156,8 +156,8 @@ Note: *every market have 'symbol', 'baseCurrencySymbol' and 'quoteCurrencySymbol
    *default value -* 0.3/0.15
  - **minspread** - this value compares with 24 hours change.  
    *default value -* -7
- - **shortemadepth**/**longemadepth** - parameters that uses for widely known Moving Average Strategy.  
-   *default value -* 12/24
+ - **shortemadepth**/**longemadepth** - parameters that uses for widely known Moving Average Strategy. **shortemadepth** uses 5 minutes candles. **longemadepth** uses 1 hour candles  
+   *default value -* 12(60 minutes)/24(24 hours)
  - **orderquantity** and **orderprice** - this parameters excludes each other. **orderprice** - the prefer parameter (if defined). It's sets price in 'quoteCurrencySymbol'.  
    **orderquantity** - is secondary parameter and sets price in 'baseCurrencySymbol". So, as showed in exampe, the bot will prefer buy orders for 50 EUR. !!!Warning!!! Result should be greater than 'minTradeSize'.  
    *default value for orderquantity -* minTradeSize &#42; 2
