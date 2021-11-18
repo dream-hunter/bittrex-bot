@@ -220,6 +220,41 @@ If you properly done logging configuration, your logs should be placed in /var/l
 ```
 cat /var/log/screenlog
 ```
+# Order database maintenance
+
+You can freely trade while bot working. Main point - do not touch funds that uses bot.
+However if you crossed line or you decided to buy some extra orders (and apply it to bot database) you have to perform the following steps:
+
+1. Stop the bot running;
+2. Use the bittrex-orders.pl to delete/add orders from/to database:
+```
+./bittrex-orders.pl
+
+Usage:
+
+-h - prints these message
+ Example:
+  ./bittrex-orders.pl -h
+
+-m <marketname> - requred parameter;
+ Example:
+  ./bittrex-orders.pl -m BTC-USD
+
+-l - list of CLOSED orders;
+ Example:
+  ./bittrex-orders.pl -m BTC-USD -l
+
+-a - add order to orderbook with following order-Id;
+ Example:
+  ./bittrex-orders.pl -m BTC-USD -a 1a84083a-8e6e-4d60-b172-8ed1a92ecf4a
+
+-d - delete order from orderbook with following order-Id;
+ Example:
+  ./bittrex-orders.pl -m BTC-USD -d 1a84083a-8e6e-4d60-b172-8ed1a92ecf4a
+
+```
+All trading information stores in *.json files. So you can also remove <market>.json file for total cleanup.
+3. Start bot again.
 
 # Changelog
 

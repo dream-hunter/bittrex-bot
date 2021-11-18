@@ -63,8 +63,7 @@ if (!defined $ARGV[0] || $ARGV[0] eq "-h" || $ARGV[0] eq "?") {
     print "\n-m <marketname> - requred parameter;\n Example:\n  ./bittrex-orders.pl -m BTC-USD\n";
     print "\n-l - list of CLOSED orders;\n Example:\n  ./bittrex-orders.pl -m BTC-USD -l\n";
     print "\n-a - add order to orderbook with following order-Id;\n Example:\n  ./bittrex-orders.pl -m BTC-USD -a 1a84083a-8e6e-4d60-b172-8ed1a92ecf4a\n";
-    print "\n-d - delete order from orderbook with following order-Id;\n Example:\n  ./bittrex-orders.pl -m BTC-USD -d 1a84083a-8e6e-4d60-b172-8ed1a92ecf4a\n";
-    print "\n<END>\n";
+    print "\n-d - delete order from orderbook with following order-Id;\n Example:\n  ./bittrex-orders.pl -m BTC-USD -d 1a84083a-8e6e-4d60-b172-8ed1a92ecf4a\n\n";
 }
 if (defined $ARGV[0] && $ARGV[0] eq "-m" && defined $ARGV[1]) {
     $market     = get_markets($ARGV[1], undef, undef, $loglevel);
