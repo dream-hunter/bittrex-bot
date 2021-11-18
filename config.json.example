@@ -1,0 +1,14 @@
+{
+"API" :
+    {
+        "apikey"    : "insert your api key here",
+        "apisecret" : "insert your api secret here"
+    },
+"Markets" :
+    {
+        "BTC-EUR" : {
+                    },
+        "ETH-EUR" : {
+                    }
+    }
+}

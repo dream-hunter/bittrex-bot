@@ -1,0 +1,11 @@
+/var/log/screenlog
+{
+	rotate 7
+	daily
+	missingok
+	notifempty
+	delaycompress
+	compress
+	size 2M
+	create 0644 root root
+}
