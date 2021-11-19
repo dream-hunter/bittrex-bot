@@ -132,15 +132,15 @@ Note: *every market have 'symbol', 'baseCurrencySymbol' and 'quoteCurrencySymbol
 };
 ```
 ### 1. buy configuration:
- - **trend** - initial trend value. It is recommended use value in a middle between **mintrend** and **maxtrend**.  
+ - **trend** - initial trend value. It is recommended to use value in a middle between **mintrend** and **maxtrend**.  
    *default value -* 15
- - **stepforward** - values that substracts from **trend** when somebody sell an order on market.  
+ - **stepforward** - value that substracts from **trend** when somebody sell an order on market.  
    *default value -* 2
- - **stepback** - values that adds to **trend** when somebody buy an order on market.  
+ - **stepback** - value that adds to **trend** when somebody buy an order on market.  
    *default value -* 3
- - **maxtrend** - Limit value for **trend** calculation. **trend** can't be greater than **maxtrend** and lesser than 0.  
+ - **maxtrend** - limit value for **trend** calculation. **trend** can't be greater than **maxtrend** and lesser than 0.  
    *default value -* 30
- - **mintrend** - Limit value for buy condition. Condition for trade: 0 <= **trend** <= **mintrend**.  
+ - **mintrend** - limit value for buy condition. Condition for trade: 0 <= **trend** <= **mintrend**.  
    *default value -* 10
  - **historycheck** defines number of hours for calculation *diffratehigh** and **diffratelow**.  
    *default value -* 48
@@ -166,15 +166,15 @@ Note: *every market have 'symbol', 'baseCurrencySymbol' and 'quoteCurrencySymbol
  - **nextpriceinc** is the multiplier of lowest order's price. The result uses for calculation next order. Example shows that next order will be increased for 5%.  
    *default value -* not defined
 ### 2. sell configuration:
- - **trend** - initial trend value. It is recommended use value in a middle between **mintrend** and **maxtrend**.  
+ - **trend** - initial trend value. It is recommended to use value in a middle between **mintrend** and **maxtrend**.  
    *default value -* 15
  - **stepforward** - values that adds to **trend** when somebody sell an order on market.  
    *default value -* 2
  - **stepback** - values that substracts from **trend** when somebody buy an order on market.  
    *default value -* 3
- - **maxtrend** - Limit value for **trend** calculation. **trend** can't be greater than **maxtrend** and lesser than 0.  
+ - **maxtrend** - limit value for **trend** calculation. **trend** can't be greater than **maxtrend** and lesser than 0.  
    *default value -* 30
- - **mintrend** - Limit value for buy condition. Condition for trade: 0 <= **trend** <= **mintrend**.  
+ - **mintrend** - limit value for buy condition. Condition for trade: 0 <= **trend** <= **mintrend**.  
    *default value -* 10
  - **nextsellorder** - literally profit that you excpect to get from each order.  
    *default value -* 0.03
@@ -189,7 +189,7 @@ After installing and configuration you can start it. First launch script to make
 /usr/bin/perl bittrex-bot.pl
 ```
 
-If program runs normaly, you can run it in background mode via screen. There is shell script to maintain this process:
+If program runs normaly, you can run it in background mode via screen. There is the shell script to maintain this process:
 
 ```
 /bin/bash tasked-bot-bg.sh
@@ -216,7 +216,7 @@ If you wanna stop process - press Ctrl+C
 
 # Logging
 
-If you properly done logging configuration, your logs should be placed in /var/log/screenlog. After start program in background you can check logs:
+If you properly done logging configuration, your logs should be placed in /var/log/screenlog. After start the program in background you can check logs by using command:
 ```
 cat /var/log/screenlog
 ```
@@ -253,7 +253,7 @@ Usage:
   ./bittrex-orders.pl -m BTC-USD -d 1a84083a-8e6e-4d60-b172-8ed1a92ecf4a
 
 ```
-All trading information stores in *.json files. So you can also remove &#60;market&#62;.json file for total cleanup.
+All trading information stores in *.json files. So you can also remove db-&#60;market&#62;.json file for total cleanup.  
 3. Start bot again.
 
 # How it works
@@ -271,7 +271,7 @@ If there is a change in a market, it gather information for analysis.
   To get more information about data analysis you can read MarketAnalysis.pm file (reading assumes relevant knowledge in pearl programming)
 4. If analysis allows buying - bot will buy order.
 
-Bot not going buy everything. It can wait quite long time before buy something. Same with sales. Setting **nextsellorder** option not means selling for exactly this price.
+Bot not going to buy everything. It can wait quite long time before buy something. Same with sales. Setting **nextsellorder** option not means selling for exactly this price.
 If price grows up, bot will wait until it stops so basically bot proably will sell order for better price, but never cheaper than you configured (except stoploss occasion).
 
 # Updates
