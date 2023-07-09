@@ -284,4 +284,5 @@ All files, except for configs and databases, will be overwritten.
 
 # Changelog
 
+ **2023-07-09** - BugFixes
  **2020-11-18** - Project shared to public access.
