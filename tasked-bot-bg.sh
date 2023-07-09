@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
-screen -L -S btcbot -d -m ./bittrex-bot.pl
+/usr/local/bin/screen -L -S btcbot -d -m /usr/local/bin/perl /home/hunter/bittrex-bot-trade/bittrex-bot.pl

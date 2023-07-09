@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
-screen -r
+/usr/local/bin/screen -r

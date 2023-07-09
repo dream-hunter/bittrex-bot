@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 use lib '.';
 use lib './bittrex-rest-api-pl/';
@@ -298,11 +298,11 @@ while(1) {
                     appendconfig($logfile,0, "$datetime $marketname --> !!!Wanna buy!!!");
                     my $limit    = $marketanalysis->{current}->{$marketname}->{ticker}->{askRate};
                     my $quantity = $tradelist->{$marketname}->{buy}->{orderquantity};
-                    if (defined $config->{Markets}->{$marketname}->{buy}->{orderprice} && $config->{Markets}->{$marketname}->{buy}->{orderprice} * $config->{Markets}->{$marketname}->{sell}->{stoploss} * 0.95 > $markets->{$marketname}->{minTradeSize} * $limit) {
-                        $quantity = $config->{Markets}->{$marketname}->{buy}->{orderprice} / $limit;
+                    if (defined $tradelist->{$marketname}->{buy}->{orderprice} && $tradelist->{$marketname}->{buy}->{orderprice} * $tradelist->{$marketname}->{sell}->{stoploss} * 0.95 > $markets->{$marketname}->{minTradeSize} * $limit) {
+                        $quantity = $tradelist->{$marketname}->{buy}->{orderprice} / $limit;
                     }
-                    if (defined $orderlow->{$marketname}->{quantity} && defined $config->{Markets}->{$marketname}->{buy}->{nextpriceinc}) {
-                        $quantity = $orderlow->{$marketname}->{quantity} * $config->{Markets}->{$marketname}->{buy}->{nextpriceinc};
+                    if (defined $orderlow->{$marketname}->{quantity} && defined $tradelist->{$marketname}->{buy}->{nextpriceinc}) {
+                        $quantity = $orderlow->{$marketname}->{quantity} * $tradelist->{$marketname}->{buy}->{nextpriceinc};
                     }
                     my $newOrder = {
                         marketSymbol  => $marketname,                   #
@@ -415,7 +415,9 @@ sub get_tradelist {
                         "nextbuyorder"  => 0.975,
                         "flag"          => 0,
                         "shortemadepth" => 12,
-                        "longemadepth"  => 24
+                        "longemadepth"  => 24,
+#                        "orderprice"    => 10,
+                        "nextpriceinc"  => 1.05
                     },
                     "sell" => {
                         "trend"         => 10,
@@ -429,15 +431,11 @@ sub get_tradelist {
                     }
                 };
                 $result->{$marketname} = dclone $defaultlimits;
-                foreach my $key (keys %{ $result->{$marketname}->{buy} }) {
-                    if (defined $config->{Markets}->{$marketname}->{buy}->{$key}) {
-                        $result->{$marketname}->{buy}->{$key} = $config->{Markets}->{$marketname}->{buy}->{$key};
-                    }
+                foreach my $key (keys %{ $config->{Markets}->{$marketname}->{buy} }) {
+                    $result->{$marketname}->{buy}->{$key} = $config->{Markets}->{$marketname}->{buy}->{$key};
                 }
-                foreach my $key (keys %{ $result->{$marketname}->{sell} }) {
-                    if (defined $config->{Markets}->{$marketname}->{sell}->{$key}) {
-                        $result->{$marketname}->{sell}->{$key} = $config->{Markets}->{$marketname}->{sell}->{$key};
-                    }
+                foreach my $key (keys %{ $config->{Markets}->{$marketname}->{sell} }) {
+                    $result->{$marketname}->{sell}->{$key} = $config->{Markets}->{$marketname}->{sell}->{$key};
                 }
             } else {
                 logmessage (" - not exists, skip\n", $loglevel);
