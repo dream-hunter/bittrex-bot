@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 
 use lib '.';
 use lib './bittrex-rest-api-pl/';
@@ -80,8 +80,8 @@ my $addresses = get_hashed($result, "currencySymbol");
 my $tradelist = get_tradelist($config, $markets, $loglevel-1);
 
 my $orderbook = undef;
-my $orderlow  = undef;
-my $orderhigh  = undef;
+#my $orderlow  = undef;
+#my $orderhigh  = undef;
 
 foreach my $marketname (keys %{ $tradelist }) {
     print Dumper $markets->{$marketname};
@@ -101,13 +101,13 @@ foreach my $marketname (keys %{ $tradelist }) {
         }
     }
     $orderbook->{$marketname} = del_filledorders($orderbook->{$marketname});
-    $orderlow->{$marketname} = get_orderlow($orderbook->{$marketname}->{ClosedOrders}, "BUY");
-    $orderhigh->{$marketname} = get_orderhigh($orderbook->{$marketname}->{ClosedOrders}, "BUY");
+    $orderbook->{$marketname}->{OrderLow} = get_orderlow($orderbook->{$marketname}->{ClosedOrders}, "BUY");
+    $orderbook->{$marketname}->{OrderHigh} = get_orderhigh($orderbook->{$marketname}->{ClosedOrders}, "BUY");
     setconfig ("db-".$marketname.".json", 0, $orderbook->{$marketname});
 }
 print Dumper $tradelist;
 print Dumper $orderbook;
-print Dumper $orderlow;
+#print Dumper $orderlow;
 #print Dumper $orderhigh;
 
 
@@ -115,7 +115,7 @@ my $marketanalysis = undef;
 print "Begin trade loop:\n";
 
 while(1) {
-    my $datetime = sprintf ("%s %s",DateTime->now(time_zone => "local")->ymd ,DateTime->now(time_zone => "local")->hms);
+    my $datetime = sprintf ("%s %s", DateTime->now(time_zone => "local")->ymd, DateTime->now(time_zone => "local")->hms);
     $marketanalysis->{current} = undef;
     my $marketsummaries = undef;
     $result = get_markets(undef, "tickers", undef, $loglevel);
@@ -148,11 +148,11 @@ while(1) {
                     }
                 }
                 $orderbook->{$marketname} = del_filledorders($orderbook->{$marketname});
-                $orderlow->{$marketname} = get_orderlow($orderbook->{$marketname}->{ClosedOrders}, "BUY");
-                $orderhigh->{$marketname} = get_orderhigh($orderbook->{$marketname}->{ClosedOrders}, "BUY");
+                $orderbook->{$marketname}->{OrderLow} = get_orderlow($orderbook->{$marketname}->{ClosedOrders}, "BUY");
+                $orderbook->{$marketname}->{OrderHigh} = get_orderhigh($orderbook->{$marketname}->{ClosedOrders}, "BUY");
                 print Dumper $orderbook;
-                print Dumper $orderlow;
-                print Dumper $orderhigh;
+#                print Dumper $orderlow;
+#                print Dumper $orderhigh;
                 setconfig ("db-".$marketname.".json", 0, $orderbook->{$marketname});
             }
         }
@@ -192,16 +192,16 @@ while(1) {
 
             print "$datetime $marketname --> Check for sell:\n";
             my $sellcheck = undef;
-            if (defined $orderlow->{$marketname} && defined $orderhigh->{$marketname}) {
-                $sellcheck = checkforsell($marketanalysis->{current}->{$marketname}, $orderlow->{$marketname}, $orderhigh->{$marketname}, $loglevel);
+            if (defined $orderbook->{$marketname}->{OrderLow} && defined $orderbook->{$marketname}->{OrderHigh}) {
+                $sellcheck = checkforsell($marketanalysis->{current}->{$marketname}, $orderbook->{$marketname}->{OrderLow}, $orderbook->{$marketname}->{OrderHigh}, $loglevel);
                 if ($sellcheck) {
                     appendconfig($logfile,0, "$datetime $marketname --> !!!Wanna sell!!!");
                     my $limit = $marketanalysis->{current}->{$marketname}->{ticker}->{bidRate};
                     my $quantity = undef;
                     if ($sellcheck == 1) {
-                        $quantity = $orderlow->{$marketname}->{fillQuantity};
+                        $quantity = $orderbook->{$marketname}->{OrderLow}->{fillQuantity};
                     } else {
-                        $quantity = $orderhigh->{$marketname}->{fillQuantity};
+                        $quantity = $orderbook->{$marketname}->{OrderHigh}->{fillQuantity};
                     }
                     my $newOrder = {
                         marketSymbol  => $marketname,                 #
@@ -228,8 +228,8 @@ while(1) {
 
             print "$datetime $marketname --> Check for buy:\n";
             my $buycheck = undef;
-            if (defined $orderlow->{$marketname} && defined $orderlow->{$marketname}->{limit} && $orderlow->{$marketname}->{limit} > 0) {
-                my $nextorder = $marketanalysis->{current}->{$marketname}->{ticker}->{askRate} / $orderlow->{$marketname}->{limit};
+            if (defined $orderbook->{$marketname}->{OrderLow} && defined $orderbook->{$marketname}->{OrderLow}->{limit} && $orderbook->{$marketname}->{OrderLow}->{limit} > 0) {
+                my $nextorder = $marketanalysis->{current}->{$marketname}->{ticker}->{askRate} / $orderbook->{$marketname}->{OrderLow}->{limit};
                 printf ("$datetime $marketname --> nextorder = %.3f\n", $nextorder);
                 if ($nextorder < $marketanalysis->{current}->{$marketname}->{config}->{buy}->{nextbuyorder}) {
                     $buycheck = checkforbuy($marketanalysis->{current}->{$marketname}, $loglevel);
@@ -249,8 +249,8 @@ while(1) {
                     if (defined $tradelist->{$marketname}->{buy}->{orderprice} && $tradelist->{$marketname}->{buy}->{orderprice} * $tradelist->{$marketname}->{sell}->{stoploss} * 0.95 > $markets->{$marketname}->{minTradeSize} * $limit) {
                         $quantity = $tradelist->{$marketname}->{buy}->{orderprice} / $limit;
                     }
-                    if (defined $orderlow->{$marketname}->{quantity} && defined $tradelist->{$marketname}->{buy}->{nextpriceinc}) {
-                        $quantity = $orderlow->{$marketname}->{quantity} * $tradelist->{$marketname}->{buy}->{nextpriceinc};
+                    if (defined $orderbook->{$marketname}->{OrderLow}->{quantity} && defined $tradelist->{$marketname}->{buy}->{nextpriceinc}) {
+                        $quantity = $orderbook->{$marketname}->{OrderLow}->{quantity} * $tradelist->{$marketname}->{buy}->{nextpriceinc};
                     }
                     my $newOrder = {
                         marketSymbol  => $marketname,                   #
