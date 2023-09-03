@@ -122,59 +122,7 @@ while(1) {
     my $markettickers = get_hashed($result, "symbol");
     if (defined $markettickers) {
         foreach my $marketname (keys %{ $tradelist }) {
-            if (!defined $marketanalysis->{new}->{$marketname}) {
-                $marketanalysis->{new}->{$marketname}->{ticker}  = dclone $markettickers->{$marketname};
-                $marketanalysis->{new}->{$marketname}->{trend}->{buy}  = $tradelist->{$marketname}->{buy}->{trend};
-                $marketanalysis->{new}->{$marketname}->{trend}->{flag} = $tradelist->{$marketname}->{buy}->{flag};
-                $marketanalysis->{new}->{$marketname}->{trend}->{sell} = $tradelist->{$marketname}->{sell}->{trend};
-            } elsif (!defined $marketanalysis->{old}->{$marketname}) {
-                $marketanalysis->{old}->{$marketname}->{ticker}  = dclone $marketanalysis->{new}->{$marketname}->{ticker};
-                $marketanalysis->{old}->{$marketname}->{trend}->{buy}  = $marketanalysis->{new}->{$marketname}->{trend}->{buy};
-                $marketanalysis->{old}->{$marketname}->{trend}->{flag} = $marketanalysis->{new}->{$marketname}->{trend}->{flag};
-                $marketanalysis->{old}->{$marketname}->{trend}->{sell} = $marketanalysis->{new}->{$marketname}->{trend}->{sell};
-                $marketanalysis->{new}->{$marketname}->{ticker}  = dclone $markettickers->{$marketname};
-            } else {
-                if ($marketanalysis->{new}->{$marketname}->{ticker}->{lastTradeRate} != $markettickers->{$marketname}->{lastTradeRate}) {
-                    $marketanalysis->{old}->{$marketname}->{ticker}  = dclone $marketanalysis->{new}->{$marketname}->{ticker};
-                    $marketanalysis->{new}->{$marketname}->{ticker}  = dclone $markettickers->{$marketname};
-                    $marketanalysis->{old}->{$marketname}->{trend}->{buy}  = $marketanalysis->{new}->{$marketname}->{trend}->{buy};
-                    $marketanalysis->{old}->{$marketname}->{trend}->{flag} = $marketanalysis->{new}->{$marketname}->{trend}->{flag};
-                    $marketanalysis->{old}->{$marketname}->{trend}->{sell} = $marketanalysis->{new}->{$marketname}->{trend}->{sell};
-                    if ($marketanalysis->{new}->{$marketname}->{ticker}->{lastTradeRate} <= $marketanalysis->{new}->{$marketname}->{ticker}->{bidRate}) {
-                        $marketanalysis->{new}->{$marketname}->{trend}->{buy} += $tradelist->{$marketname}->{buy}->{stepback};
-                        if ($marketanalysis->{new}->{$marketname}->{trend}->{buy} > $tradelist->{$marketname}->{buy}->{maxtrend}) {
-                            $marketanalysis->{new}->{$marketname}->{trend}->{buy} = $tradelist->{$marketname}->{buy}->{maxtrend};
-                        }
-                        $marketanalysis->{new}->{$marketname}->{trend}->{sell} -= $tradelist->{$marketname}->{sell}->{stepforward};
-                        if ($marketanalysis->{new}->{$marketname}->{trend}->{sell} < 0) {
-                            $marketanalysis->{new}->{$marketname}->{trend}->{sell} = 0;
-                        }
-                    } elsif ($marketanalysis->{new}->{$marketname}->{ticker}->{lastTradeRate} >= $marketanalysis->{new}->{$marketname}->{ticker}->{askRate}) {
-                        $marketanalysis->{new}->{$marketname}->{trend}->{buy} -= $tradelist->{$marketname}->{buy}->{stepforward};
-                        if ($marketanalysis->{new}->{$marketname}->{trend}->{buy} < 0) {
-                            $marketanalysis->{new}->{$marketname}->{trend}->{buy} = 0;
-                        }
-                        $marketanalysis->{new}->{$marketname}->{trend}->{sell} += $tradelist->{$marketname}->{sell}->{stepback};
-                        if ($marketanalysis->{new}->{$marketname}->{trend}->{sell} > $tradelist->{$marketname}->{sell}->{maxtrend}) {
-                            $marketanalysis->{new}->{$marketname}->{trend}->{sell} = $tradelist->{$marketname}->{sell}->{maxtrend};
-                        }
-                    }
-                    if (!defined $marketsummaries) {
-                        $result = get_markets(undef, "summaries", undef, $loglevel);
-                        $marketsummaries = get_hashed($result, "symbol");
-                    }
-                    my $candles_short = get_markets($marketname, "candles/MIDPOINT/MINUTE_5/recent", undef, $loglevel); # MINUTE_1: 1 day, MINUTE_5: 1 day, HOUR_1: 31 days, DAY_1: 366 days
-                    my $candles_long  = get_markets($marketname, "candles/MIDPOINT/HOUR_1/recent", undef, $loglevel); # MINUTE_1: 1 day, MINUTE_5: 1 day, HOUR_1: 31 days, DAY_1: 366 days
-                    if (defined $marketsummaries->{$marketname} && defined $candles_short && defined $candles_long) {
-                        $marketanalysis->{current}->{$marketname}->{ticker}  = dclone $markettickers->{$marketname};
-                        $marketanalysis->{current}->{$marketname}->{summary} = dclone $marketsummaries->{$marketname};
-                        $marketanalysis->{current}->{$marketname}->{config}  = dclone $tradelist->{$marketname};
-                        $marketanalysis->{current}->{$marketname}->{trend}   = dclone $marketanalysis->{new}->{$marketname}->{trend};
-                        $marketanalysis->{current}->{$marketname}->{candles_short} = dclone $candles_short;
-                        $marketanalysis->{current}->{$marketname}->{candles_long}  = dclone $candles_long;
-                    }
-                }
-            }
+            $marketanalysis = dclone ticker_analyse($marketanalysis, $marketname, $markettickers->{$marketname}, $marketsummaries);
             if (defined $orderbook->{$marketname}->{OpenOrders} && scalar keys %{ $orderbook->{$marketname}->{OpenOrders} } > 0) {
                 foreach my $orderId (keys %{ $orderbook->{$marketname}->{OpenOrders} }) {
                     my $order = get_orders($api, $orderId, undef, $loglevel);
@@ -328,6 +276,67 @@ while(1) {
 ###############################################################################################
 # Subroutines
 ###############################################################################################
+
+sub ticker_analyse {
+    my $marketanalysis  = $_[0];
+    my $marketname      = $_[1];
+    my $marketticker    = $_[2];
+    my $marketsummaries = $_[3];
+            if (!defined $marketanalysis->{new}->{$marketname}) {
+                $marketanalysis->{new}->{$marketname}->{ticker}  = dclone $marketticker;
+                $marketanalysis->{new}->{$marketname}->{trend}->{buy}  = $tradelist->{$marketname}->{buy}->{trend};
+                $marketanalysis->{new}->{$marketname}->{trend}->{flag} = $tradelist->{$marketname}->{buy}->{flag};
+                $marketanalysis->{new}->{$marketname}->{trend}->{sell} = $tradelist->{$marketname}->{sell}->{trend};
+            } elsif (!defined $marketanalysis->{old}->{$marketname}) {
+                $marketanalysis->{old}->{$marketname}->{ticker}  = dclone $marketanalysis->{new}->{$marketname}->{ticker};
+                $marketanalysis->{old}->{$marketname}->{trend}->{buy}  = $marketanalysis->{new}->{$marketname}->{trend}->{buy};
+                $marketanalysis->{old}->{$marketname}->{trend}->{flag} = $marketanalysis->{new}->{$marketname}->{trend}->{flag};
+                $marketanalysis->{old}->{$marketname}->{trend}->{sell} = $marketanalysis->{new}->{$marketname}->{trend}->{sell};
+                $marketanalysis->{new}->{$marketname}->{ticker}  = dclone $marketticker;
+            } else {
+                if ($marketanalysis->{new}->{$marketname}->{ticker}->{lastTradeRate} != $marketticker->{lastTradeRate}) {
+                    $marketanalysis->{old}->{$marketname}->{ticker}  = dclone $marketanalysis->{new}->{$marketname}->{ticker};
+                    $marketanalysis->{new}->{$marketname}->{ticker}  = dclone $marketticker;
+                    $marketanalysis->{old}->{$marketname}->{trend}->{buy}  = $marketanalysis->{new}->{$marketname}->{trend}->{buy};
+                    $marketanalysis->{old}->{$marketname}->{trend}->{flag} = $marketanalysis->{new}->{$marketname}->{trend}->{flag};
+                    $marketanalysis->{old}->{$marketname}->{trend}->{sell} = $marketanalysis->{new}->{$marketname}->{trend}->{sell};
+                    if ($marketanalysis->{new}->{$marketname}->{ticker}->{lastTradeRate} <= $marketanalysis->{new}->{$marketname}->{ticker}->{bidRate}) {
+                        $marketanalysis->{new}->{$marketname}->{trend}->{buy} += $tradelist->{$marketname}->{buy}->{stepback};
+                        if ($marketanalysis->{new}->{$marketname}->{trend}->{buy} > $tradelist->{$marketname}->{buy}->{maxtrend}) {
+                            $marketanalysis->{new}->{$marketname}->{trend}->{buy} = $tradelist->{$marketname}->{buy}->{maxtrend};
+                        }
+                        $marketanalysis->{new}->{$marketname}->{trend}->{sell} -= $tradelist->{$marketname}->{sell}->{stepforward};
+                        if ($marketanalysis->{new}->{$marketname}->{trend}->{sell} < 0) {
+                            $marketanalysis->{new}->{$marketname}->{trend}->{sell} = 0;
+                        }
+                    } elsif ($marketanalysis->{new}->{$marketname}->{ticker}->{lastTradeRate} >= $marketanalysis->{new}->{$marketname}->{ticker}->{askRate}) {
+                        $marketanalysis->{new}->{$marketname}->{trend}->{buy} -= $tradelist->{$marketname}->{buy}->{stepforward};
+                        if ($marketanalysis->{new}->{$marketname}->{trend}->{buy} < 0) {
+                            $marketanalysis->{new}->{$marketname}->{trend}->{buy} = 0;
+                        }
+                        $marketanalysis->{new}->{$marketname}->{trend}->{sell} += $tradelist->{$marketname}->{sell}->{stepback};
+                        if ($marketanalysis->{new}->{$marketname}->{trend}->{sell} > $tradelist->{$marketname}->{sell}->{maxtrend}) {
+                            $marketanalysis->{new}->{$marketname}->{trend}->{sell} = $tradelist->{$marketname}->{sell}->{maxtrend};
+                        }
+                    }
+                    if (!defined $marketsummaries) {
+                        $result = get_markets(undef, "summaries", undef, $loglevel);
+                        $marketsummaries = get_hashed($result, "symbol");
+                    }
+                    my $candles_short = get_markets($marketname, "candles/MIDPOINT/MINUTE_5/recent", undef, $loglevel); # MINUTE_1: 1 day, MINUTE_5: 1 day, HOUR_1: 31 days, DAY_1: 366 days
+                    my $candles_long  = get_markets($marketname, "candles/MIDPOINT/HOUR_1/recent", undef, $loglevel); # MINUTE_1: 1 day, MINUTE_5: 1 day, HOUR_1: 31 days, DAY_1: 366 days
+                    if (defined $marketsummaries->{$marketname} && defined $candles_short && defined $candles_long) {
+                        $marketanalysis->{current}->{$marketname}->{ticker}  = dclone $marketticker;
+                        $marketanalysis->{current}->{$marketname}->{summary} = dclone $marketsummaries->{$marketname};
+                        $marketanalysis->{current}->{$marketname}->{config}  = dclone $tradelist->{$marketname};
+                        $marketanalysis->{current}->{$marketname}->{trend}   = dclone $marketanalysis->{new}->{$marketname}->{trend};
+                        $marketanalysis->{current}->{$marketname}->{candles_short} = dclone $candles_short;
+                        $marketanalysis->{current}->{$marketname}->{candles_long}  = dclone $candles_long;
+                    }
+                }
+            }
+    return ($marketanalysis);
+}
 
 sub get_orderlow {
     my $orders   = $_[0];
